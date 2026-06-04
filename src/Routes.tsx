@@ -1,8 +1,11 @@
-import { createNativeStackNavigator, NativeStackNavigationProp } from "@react-navigation/native-stack";
+import {
+  createNativeStackNavigator,
+  NativeStackNavigationProp,
+} from "@react-navigation/native-stack";
 
 import { HomeScreen } from "./screens/HomeScreen";
 import { CreateAdScreen } from "./screens/CreateAdScreen";
-import { SignUpScreen } from "./screens/SignUpScreen";
+import { SignUpScreen } from "./screens/CriarUsuario/SignUpScreen";
 import { SignInScreen } from "./screens/SignInScreen";
 import { DetailScreen } from "./screens/DetailsScreen";
 import { NavigationContainer, RouteProp } from "@react-navigation/native";
@@ -33,4 +36,7 @@ export const AppRoutes = () => {
 
 export type TNavigation = NativeStackNavigationProp<TScreenDefinitions>;
 
-export type TRouteProps<T extends keyof TScreenDefinitions> = RouteProp<TScreenDefinitions, T>;
+export type TRouteProps<T extends keyof TScreenDefinitions> = RouteProp<
+  TScreenDefinitions,
+  T
+>;

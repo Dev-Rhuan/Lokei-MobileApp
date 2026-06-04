@@ -1,5 +1,5 @@
 import { AppRoutes } from "./Routes";
-import { SignUpScreen } from "./screens/SignUpScreen";
+import { SignUpScreen } from "./screens/CriarUsuario/SignUpScreen";
 
 export default function App() {
   // return <AppRoutes />;
