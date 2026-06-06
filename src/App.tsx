@@ -1,7 +1,10 @@
-import { AppRoutes } from "./Routes";
-import { SignUpScreen } from "./screens/CriarUsuario/SignUpScreen";
+import { AccountProvider } from "./contexts/AccountFormContext";
+import { Routes } from "./routes/routes";
 
 export default function App() {
-  // return <AppRoutes />;
-  return <SignUpScreen />;
+  return (
+    <AccountProvider>
+      <Routes />
+    </AccountProvider>
+  );
 }

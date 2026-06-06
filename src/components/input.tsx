@@ -8,12 +8,13 @@ import {
 import { Feather } from "@expo/vector-icons";
 import { Controller, UseControllerProps } from "react-hook-form";
 import { forwardRef, useState } from "react";
+import { AccountProps } from "../contexts/AccountFormContext";
 
 type Props = {
   icon?: keyof typeof Feather.glyphMap;
-  formProps: UseControllerProps;
+  formProps: UseControllerProps<AccountProps>;
   inputProps?: TextInputProps;
-  error: string;
+  error?: string;
 };
 
 const Input = forwardRef<TextInput, Props>(
