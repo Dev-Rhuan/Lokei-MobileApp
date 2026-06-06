@@ -3,11 +3,12 @@ import { StyleSheet } from "react-native";
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: "space-between",
     backgroundColor: "#FAFAFA",
     padding: 24,
   },
   header: {
+    marginTop: "auto",
     marginBottom: 8,
   },
   title: {
@@ -22,36 +23,20 @@ export const styles = StyleSheet.create({
     color: "#737373",
     marginTop: 8,
     lineHeight: 18,
-    maxWidth: 280,
+    width: 350,
   },
   inputWrapper: {
     marginTop: 20,
   },
   label: {
-    fontSize: 11,
+    fontSize: 14,
     color: "#737373",
     marginLeft: 4,
-    fontWeight: "600",
-    marginBottom: 6,
+    fontWeight: "400",
+    marginBottom: 8,
   },
-  button: {
-    width: "100%",
-    height: 56,
-    borderRadius: 20,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#F97316",
-    shadowColor: "#F97316",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 15,
-    fontWeight: "700",
+  footer: {
+    marginTop: "auto",
   },
   footerText: {
     marginTop: 20,

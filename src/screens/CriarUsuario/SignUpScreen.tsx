@@ -40,7 +40,11 @@ export const SignUpScreen = () => {
     }
   };
 
-  const { control, handleSubmit } = useForm();
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
 
   const emailRef = useRef<TextInput>(null);
 
@@ -49,78 +53,77 @@ export const SignUpScreen = () => {
       <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
         <View style={styles.container}>
           <View style={styles.header}>
-            <Text style={styles.title}>Crie sua conta</Text>
+            <Text style={styles.title}>Vamos começar 👋</Text>
             <Text style={styles.subtitle}>
-              Crie sua conta para começar a usar o app
+              Primeiro, conte um pouco sobre você. Essas informações ficam
+              protegidas.
             </Text>
           </View>
 
-          <View style={styles.inputWrapper}>
-            <Text style={styles.label}>Nome completo</Text>
-            <Input
-              icon="user"
-              formProps={{
-                name: "name",
-                control,
-              }}
-              inputProps={{
-                placeholder: "Seu nome completo",
-                onSubmitEditing: () => emailRef.current?.focus(),
-                returnKeyType: "next",
-              }}
-            />
+          <View>
+            <View style={styles.inputWrapper}>
+              <Text style={styles.label}>Nome completo</Text>
+              <Input
+                icon="user"
+                error={errors.name?.message}
+                formProps={{
+                  name: "name",
+                  control,
+                  rules: {
+                    required: "Nome é obrigatório.",
+                  },
+                }}
+                inputProps={{
+                  placeholder: "Seu nome completo",
+                  onSubmitEditing: () => emailRef.current?.focus(),
+                  returnKeyType: "next",
+                }}
+              />
+            </View>
+
+            <View style={styles.inputWrapper}>
+              <Text style={styles.label}>CPF</Text>
+              <Input
+                icon="credit-card"
+                error={errors.name?.message}
+                formProps={{
+                  name: "cpf",
+                  control,
+                  rules: {
+                    required: "CPF é obrigatório.",
+                  },
+                }}
+                inputProps={{
+                  placeholder: "123.456.789-00",
+                  onSubmitEditing: () => emailRef.current?.focus(),
+                  returnKeyType: "next",
+                }}
+              />
+            </View>
+
+            <View style={styles.inputWrapper}>
+              <Text style={styles.label}>Data de nascimento</Text>
+              <Input
+                icon="calendar"
+                error={errors.name?.message}
+                formProps={{
+                  name: "data",
+                  control,
+                  rules: {
+                    required: "Data de nascimento é obrigatório.",
+                  },
+                }}
+                inputProps={{
+                  placeholder: "DD/MM/AAAA",
+                  onSubmitEditing: () => emailRef.current?.focus(),
+                  returnKeyType: "next",
+                }}
+              />
+            </View>
           </View>
 
-          <View style={styles.inputWrapper}>
-            <Text style={styles.label}>E-mail</Text>
-            <Input
-              ref={emailRef}
-              icon="mail"
-              formProps={{
-                name: "email",
-                control,
-              }}
-              inputProps={{
-                placeholder: "Email",
-                onSubmitEditing: () => handleSubmit(handleNextStep),
-              }}
-            />
-          </View>
-
-          <View style={styles.inputWrapper}>
-            <Text style={styles.label}>Telefone</Text>
-            <Input
-              icon="phone"
-              formProps={{
-                name: "phone",
-                control,
-              }}
-              inputProps={{
-                placeholder: "(00) 00000-0000",
-              }}
-            />
-          </View>
-
-          <View style={styles.inputWrapper}>
-            <Text style={styles.label}>Senha</Text>
-            <Input
-              formProps={{
-                name: "password",
-                control,
-              }}
-              inputProps={{
-                placeholder: "Senha",
-                secureTextEntry: true,
-              }}
-            />
-          </View>
-
-          <View style={{ marginTop: 28 }}>
-            <Button
-              title="Criar conta"
-              onPress={handleSubmit(handleNextStep)}
-            />
-
+          <View style={styles.footer}>
+            <Button title="Continuar" onPress={handleSubmit(handleNextStep)} />
             <Text style={styles.footerText}>
               Já tem uma conta?{" "}
               <Text
