@@ -1,3 +1,4 @@
+import React, { forwardRef, useState } from "react";
 import {
   TextInput,
   StyleSheet,
@@ -6,19 +7,36 @@ import {
   Text,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import { Controller, UseControllerProps } from "react-hook-form";
-import { forwardRef, useState } from "react";
-import { AccountProps } from "../contexts/AccountFormContext";
+import { Controller, FieldValues, UseControllerProps } from "react-hook-form";
 
-type Props = {
+type Props<T extends FieldValues> = {
   icon?: keyof typeof Feather.glyphMap;
-  formProps: UseControllerProps<AccountProps>;
+  formProps: UseControllerProps<T>;
   inputProps?: TextInputProps;
   error?: string;
+  mask?: "cpf";
+  containerStyle?: object;
 };
 
-const Input = forwardRef<TextInput, Props>(
-  ({ icon, formProps, inputProps, error = "" }, ref) => {
+const applyMask = (text: string, maskType?: "cpf") => {
+  let value = text.replace(/\D/g, "");
+
+  if (maskType === "cpf") {
+    if (value.length > 11) value = value.slice(0, 11);
+    value = value.replace(/(\d{3})(\d)/, "$1.$2");
+    value = value.replace(/(\d{3})(\d)/, "$1.$2");
+    value = value.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+    return value;
+  }
+
+  return text;
+};
+
+const Input = forwardRef(
+  <T extends FieldValues>(
+    { icon, formProps, inputProps, error = "", mask, containerStyle }: Props<T>,
+    ref: React.Ref<TextInput>,
+  ) => {
     const [isFocused, setIsFocused] = useState(false);
 
     return (
@@ -29,6 +47,7 @@ const Input = forwardRef<TextInput, Props>(
             <View
               style={[
                 styles.inputContainer,
+                containerStyle,
                 { borderColor: isFocused ? "#F97316" : "#A3A3A3" },
               ]}
             >
@@ -41,7 +60,10 @@ const Input = forwardRef<TextInput, Props>(
                 ref={ref}
                 style={styles.textInput}
                 value={field.value}
-                onChangeText={field.onChange}
+                onChangeText={(text) => {
+                  const formattedText = mask ? applyMask(text, mask) : text;
+                  field.onChange(formattedText);
+                }}
                 placeholderTextColor="#A3A3A3"
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => {
@@ -58,7 +80,9 @@ const Input = forwardRef<TextInput, Props>(
       />
     );
   },
-);
+) as <T extends FieldValues>(
+  props: Props<T> & { ref?: React.Ref<TextInput> },
+) => React.ReactElement;
 
 const styles = StyleSheet.create({
   container: {},

@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   buttonText: {
-    color: "#fff",
+    color: "#FFFFFF",
     fontSize: 15,
     fontWeight: "700",
   },

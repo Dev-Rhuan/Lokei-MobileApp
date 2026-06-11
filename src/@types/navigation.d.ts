@@ -3,7 +3,8 @@ export declare global {
     interface RootParamList {
       stepOne: undefined;
       stepTwo: undefined;
-      stepThree: undefined;
+      toolDetails: { id: string };
+      criarAnuncio: undefined;
       home: undefined;
     }
   }

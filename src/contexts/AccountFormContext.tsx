@@ -5,15 +5,8 @@ export type AccountProps = {
   cpf?: string;
   birth?: string;
   email?: string;
-  phone?: string;
   password?: string;
-  cep?: string;
-  rua?: string;
-  number?: string;
-  complemento?: string;
-  bairro?: string;
-  cidade?: string;
-  estado?: string;
+  passwordConfirm?: string;
 };
 
 type AccountFormContextDataProps = {
