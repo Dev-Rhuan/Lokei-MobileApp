@@ -8,13 +8,13 @@ import {
   TextInput,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Feather} from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 
 import { ToolCard, ToolProps } from "../components/Card";
 import { BottomNavBar } from "../components/NavBar";
+import { CategoryFilter } from "../components/CategoryFilter";
 
-const CATEGORIES = ["Todos", "Furadeiras", "Jardim", "Construção"];
 const MOCK_TOOLS: ToolProps[] = [
   {
     id: "1",
@@ -68,38 +68,6 @@ export const Home = () => {
               </View>
             </View>
 
-            {/* CATEGORIAS */}
-            <View style={styles.categoriesSection}>
-              <FlatList
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                data={CATEGORIES}
-                keyExtractor={(item) => item}
-                contentContainerStyle={{ gap: 12, paddingHorizontal: 16 }}
-                renderItem={({ item }) => {
-                  const isActive = activeCategory === item;
-                  return (
-                    <TouchableOpacity
-                      onPress={() => setActiveCategory(item)}
-                      style={[
-                        styles.categoryPill,
-                        isActive && styles.categoryPillActive,
-                      ]}
-                    >
-                      <Text
-                        style={[
-                          styles.categoryText,
-                          isActive && styles.categoryTextActive,
-                        ]}
-                      >
-                        {item}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                }}
-              />
-            </View>
-
             {/* TÍTULO DA SEÇÃO */}
             <View style={styles.sectionTitleRow}>
               <Text style={styles.sectionTitle}>Perto de você</Text>
@@ -114,7 +82,7 @@ export const Home = () => {
         )}
       />
 
-      <BottomNavBar bottomInset={insets.bottom} />
+      <BottomNavBar />
     </View>
   );
 };

@@ -1,4 +1,5 @@
 import {
+  Alert,
   Keyboard,
   ScrollView,
   Text,
@@ -14,6 +15,9 @@ import { Input } from "../../components/input";
 import { useForm } from "react-hook-form";
 import { Button } from "../../components/button";
 import { PhotoPicker } from "../../components/PhotoPicker";
+import { useNavigation } from "@react-navigation/native";
+import { styles } from "./styles";
+import { supabase } from "../../services/supabase";
 
 export const CriarAnuncio = () => {
   type AnuncioProps = {
@@ -24,6 +28,7 @@ export const CriarAnuncio = () => {
   };
 
   const insets = useSafeAreaInsets();
+  const { goBack } = useNavigation();
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [photoUrls, setPhotoUrls] = useState<string[]>([]);
 
@@ -33,33 +38,91 @@ export const CriarAnuncio = () => {
     formState: { errors },
   } = useForm<AnuncioProps>();
 
+  async function handlePublish(data: AnuncioProps) {
+    try {
+      /*
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        Alert.alert("Sessão expirada", "Faça login novamente.");
+        return;
+      }
+        */
+
+      if (!activeCategory) {
+        Alert.alert("Atenção", "Selecione uma categoria para o anúncio.");
+        return;
+      }
+
+      // 1. Insere o anúncio na tabela principal (anuncio)
+      const { data: anuncioInserido, error: anuncioError } = await supabase
+        .from("anuncio")
+        .insert({
+          titulo: data.titulo,
+          descricao: data.descricao,
+          preco: parseFloat(data.preco.replace(",", ".")),
+          cep: data.cep,
+          categoria_id: activeCategory, // ID retornado pelo componente Category
+          //usuario_id: user.id, // ID do usuário autenticado
+        })
+        .select() // Importante para trazer de volta o ID gerado pelo banco
+        .single();
+
+      if (anuncioError) throw anuncioError;
+
+      // 2. Insere as fotos na tabela relacional (anuncio_imagem), se houverem
+      if (photoUrls.length > 0) {
+        const imagensParaInserir = photoUrls.map((url, index) => ({
+          anuncio_id: anuncioInserido.id, // Vincula à chave estrangeira do anúncio criado acima
+          url: url,
+          ordem: index,
+        }));
+
+        const { error: imagemError } = await supabase
+          .from("anuncio_imagem")
+          .insert(imagensParaInserir);
+
+        if (imagemError) throw imagemError;
+      }
+
+      Alert.alert("Sucesso!", "Seu anúncio foi publicado com sucesso.", [
+        { text: "OK", onPress: () => goBack() },
+      ]);
+    } catch (e) {
+      console.error("Erro ao publicar anúncio:", JSON.stringify(e));
+      Alert.alert(
+        "Erro",
+        "Não foi possível publicar o anúncio. Tente novamente.",
+      );
+    }
+  }
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <ScrollView
-        contentContainerStyle={{ flexGrow: 1 }}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-      >
-        <View
-          style={{
-            paddingTop: insets.top + 16,
-            paddingBottom: insets.bottom + 8,
-          }}
-        >
-          <View>
-            <BackButton />
-            <Text>Novo anúncio</Text>
-            <TouchableOpacity>
-              <Text>Cancelar</Text>
-            </TouchableOpacity>
-          </View>
+      <View style={{ flex: 1 }}>
+        <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
+          <BackButton />
+          <Text style={styles.headerTitle}>Novo anúncio</Text>
+          <TouchableOpacity onPress={goBack}>
+            <Text style={styles.cancelText}>Cancelar</Text>
+          </TouchableOpacity>
+        </View>
 
-          <View>
+        <ScrollView
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingBottom: insets.bottom + 100 },
+          ]}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={{ marginBottom: 20 }}>
             <PhotoPicker onChange={setPhotoUrls} />
           </View>
-
-          <View>
-            <Text>Título do anúncio</Text>
+          <View style={styles.section}>
+            <Text style={styles.label}>Título do anúncio</Text>
             <Input
               error={errors.titulo?.message}
               formProps={{
@@ -73,79 +136,92 @@ export const CriarAnuncio = () => {
             />
           </View>
 
-          <View>
-            <Text>Categoria</Text>
+          <View style={styles.section}>
+            <Text style={styles.label}>Categoria</Text>
             <Category
-              activeCategory={activeCategory}
+              activeCategoryId={activeCategory}
               onSelect={setActiveCategory}
             />
           </View>
 
-          <View>
-            <Text>Descrição</Text>
+          <View style={styles.section}>
+            <View style={styles.labelRow}>
+              <Text style={styles.label}>Descrição</Text>
+              <Text style={styles.hint}>0/500</Text>
+            </View>
             <Input
               error={errors.descricao?.message}
               formProps={{
                 control,
                 name: "descricao",
-                rules: { required: "Descrição é obrigatório." },
+                rules: { required: "Descrição é obrigatória." },
               }}
               inputProps={{
                 placeholder:
-                  "Descreva o estado, acessórios inclusos e instruções de uso da ferramenta...",
+                  "Descreva o estado, acessórios inclusos e instruções de uso...",
                 multiline: true,
-                numberOfLines: 5,
                 returnKeyType: "default",
+                textAlignVertical: "top",
               }}
               containerStyle={{
-                height: 100,
-                paddingHorizontal: 0,
+                height: 110,
+                alignItems: "flex-start",
+                paddingVertical: 14,
               }}
             />
           </View>
 
-          <View>
-            <Text>Valor do aluguel</Text>
-            <Input
-              error={errors.preco?.message}
-              formProps={{
-                control,
-                name: "preco",
-                rules: { required: "Preço é obrigatório." },
-              }}
-              inputProps={{
-                placeholder: "0,00",
-                returnKeyType: "next",
-              }}
-              containerStyle={{
-                paddingHorizontal: 0,
-              }}
-            />
+          <View style={styles.section}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.label}>Preço por dia</Text>
+              <Input
+                error={errors.preco?.message}
+                formProps={{
+                  control,
+                  name: "preco",
+                  rules: { required: "Preço é obrigatório." },
+                }}
+                inputProps={{
+                  placeholder: "R$ 0,00",
+                  keyboardType: "numeric",
+                  returnKeyType: "next",
+                }}
+              />
+            </View>
           </View>
 
-          <View>
-            <Text>Cep da localização do anuncio</Text>
+          <View style={styles.section}>
+            <Text style={styles.label}>CEP da localização</Text>
             <Input
+              icon="map-pin"
               error={errors.cep?.message}
               formProps={{
                 control,
                 name: "cep",
-                rules: { required: "Cep é obrigatório." },
+                rules: {
+                  required: "CEP é obrigatório.",
+                  pattern: {
+                    value: /^\d{5}-\d{3}$/,
+                    message: "CEP inválido",
+                  },
+                },
               }}
               inputProps={{
-                returnKeyType: "next",
-              }}
-              containerStyle={{
-                paddingHorizontal: 0,
+                placeholder: "00000-000",
+                keyboardType: "numeric",
+                returnKeyType: "done",
               }}
             />
           </View>
+        </ScrollView>
 
-          <View>
-            <Button title="Publicar anúncio" />
-          </View>
+        <View style={[styles.footer, { paddingBottom: insets.bottom + 12 }]}>
+          <Button
+            title="Publicar anúncio"
+            onPress={handleSubmit(handlePublish)}
+          />
         </View>
-      </ScrollView>
+      </View>
     </TouchableWithoutFeedback>
   );
 };

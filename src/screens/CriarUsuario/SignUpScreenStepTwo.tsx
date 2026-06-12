@@ -20,9 +20,7 @@ import { useAccountForm } from "../../hooks/useAccountForm";
 import { AccountProps } from "../../contexts/AccountFormContext";
 import { Progress } from "../../components/Progress";
 import { BackButton } from "../../components/BackButton";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth, db } from "../../services/firebaseConfig";
-import { doc, setDoc } from "firebase/firestore";
+import { supabase } from "../../services/supabase";
 
 export const StepTwo = () => {
   const insets = useSafeAreaInsets();
@@ -45,33 +43,40 @@ export const StepTwo = () => {
     try {
       updateFormData(data);
 
-      const usuarioCompleto = {...accountFormData, ...data};
+      const usuarioCompleto = { ...accountFormData, ...data };
 
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        usuarioCompleto.email!,
-        usuarioCompleto.password!
+      const { data: authData, error: signUpError } = await supabase.auth.signUp(
+        {
+          email: usuarioCompleto.email!,
+          password: usuarioCompleto.password!,
+        },
       );
 
-      const user = userCredential.user;
+      if (signUpError) throw signUpError;
 
-      await setDoc(doc(db, "usuario", user.uid), {
+      const user = authData.user;
+
+      const { error: insertError } = await supabase.from("usuario").insert({
+        id: user!.id,
         name: usuarioCompleto.name,
         cpf: usuarioCompleto.cpf,
         birth: usuarioCompleto.birth,
         email: usuarioCompleto.email,
-        createdAt: new Date(),
       });
 
-      navigate("home");
+      if (insertError) throw insertError;
 
+      navigate("home");
     } catch (error: any) {
-      if (error.code === "auth/email-already-in-use") {
+      if (error.message?.includes("already registered")) {
         Alert.alert("Erro", "Este e-mail já está cadastrado.");
-      } else if (error.code === "auth/weak-password") {
-        Alert.alert("Erro", "A senha precisa ter pelo menos 6 caracteres.");
+      } else if (error.message?.includes("weak")) {
+        Alert.alert("Erro", "A senha precisa ter pelo menos 8 caracteres.");
       } else {
-        Alert.alert("Erro", "Não foi possível criar a conta. Verifique sua conexão e tente novamente.");
+        Alert.alert(
+          "Erro",
+          "Não foi possível criar a conta. Verifique sua conexão e tente novamente.",
+        );
       }
     }
   }
