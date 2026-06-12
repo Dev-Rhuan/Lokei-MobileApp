@@ -1,14 +1,30 @@
-import { TouchableOpacity, StyleSheet } from "react-native";
+import {
+  TouchableOpacity,
+  StyleSheet,
+  TouchableOpacityProps,
+} from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 
-export function BackButton() {
+type Props = TouchableOpacityProps & {
+  onPress?: () => void;
+};
+
+export function BackButton({ onPress, ...rest }: Props) {
   const navigation = useNavigation();
+
+  const handlePress = () => {
+    if (onPress) {
+      onPress();
+    } else {
+      navigation.goBack();
+    }
+  };
 
   return (
     <TouchableOpacity
       style={styles.container}
-      onPress={() => navigation.goBack()}
+      onPress={handlePress}
       activeOpacity={0.8}
     >
       <Feather name="chevron-left" size={22} color="#171717" />

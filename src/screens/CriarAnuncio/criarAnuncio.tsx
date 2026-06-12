@@ -28,9 +28,9 @@ export const CriarAnuncio = () => {
   };
 
   const insets = useSafeAreaInsets();
-  const { goBack } = useNavigation();
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [photoUrls, setPhotoUrls] = useState<string[]>([]);
+  const navigation = useNavigation<any>();
 
   const {
     control,
@@ -88,7 +88,7 @@ export const CriarAnuncio = () => {
       }
 
       Alert.alert("Sucesso!", "Seu anúncio foi publicado com sucesso.", [
-        { text: "OK", onPress: () => goBack() },
+        { text: "OK", onPress: () => navigation.navigate("home") },
       ]);
     } catch (e) {
       console.error("Erro ao publicar anúncio:", JSON.stringify(e));
@@ -103,9 +103,9 @@ export const CriarAnuncio = () => {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={{ flex: 1 }}>
         <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
-          <BackButton />
+          <BackButton onPress={() => navigation.navigate("home")} />
           <Text style={styles.headerTitle}>Novo anúncio</Text>
-          <TouchableOpacity onPress={goBack}>
+          <TouchableOpacity onPress={() => navigation.navigate("home")}>
             <Text style={styles.cancelText}>Cancelar</Text>
           </TouchableOpacity>
         </View>

@@ -9,10 +9,7 @@ const { Navigator, Screen } = createNativeStackNavigator();
 
 export function AccountRoutes() {
   return (
-    <Navigator
-      screenOptions={{ headerShown: false }}
-      initialRouteName="criarAnuncio"
-    >
+    <Navigator screenOptions={{ headerShown: false }} initialRouteName="home">
       <Screen name="home" component={Home} />
       <Screen name="stepOne" component={StepOne} />
       <Screen name="stepTwo" component={StepTwo} />

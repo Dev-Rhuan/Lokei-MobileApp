@@ -1,11 +1,14 @@
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Feather } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 
 type Props = {
   activeRoute: string;
 };
 
 export function BottomNavBar({ activeRoute }: Props) {
+  const navigation = useNavigation<any>();
+
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.button}>
@@ -18,7 +21,10 @@ export function BottomNavBar({ activeRoute }: Props) {
       </TouchableOpacity>
 
       <View style={styles.centerButton}>
-        <TouchableOpacity style={styles.anunciar}>
+        <TouchableOpacity
+          style={styles.anunciar}
+          onPress={() => navigation.navigate("criarAnuncio")}
+        >
           <Feather name="plus" size={28} />
         </TouchableOpacity>
         <Text style={styles.text}>Anunciar</Text>

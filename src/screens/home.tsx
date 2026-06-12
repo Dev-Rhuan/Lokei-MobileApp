@@ -1,86 +1,130 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
   FlatList,
   StyleSheet,
-  TouchableOpacity,
   TextInput,
+  ActivityIndicator,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 
+// Importando o Supabase e a tipagem do Card
+import { supabase } from "../services/supabase";
 import { ToolCard, ToolProps } from "../components/Card";
 import { BottomNavBar } from "../components/NavBar";
-import { CategoryFilter } from "../components/CategoryFilter";
-
-const MOCK_TOOLS: ToolProps[] = [
-  {
-    id: "1",
-    title: "Furadeira de Impacto DeWalt",
-    price: 35,
-    rating: 4.9,
-    reviews: 128,
-    location: "Pinheiros",
-    distance: "1,2 km",
-    image:
-      "https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    id: "2",
-    title: 'Motosserra a Gasolina 16"',
-    price: 70,
-    rating: 4.8,
-    reviews: 64,
-    location: "Vila Madalena",
-    distance: "2,5 km",
-    image:
-      "https://images.unsplash.com/photo-1572981779307-38b8cabb2407?auto=format&fit=crop&w=400&q=80",
-  },
-];
 
 export const Home = () => {
   const insets = useSafeAreaInsets();
-  const { navigate } = useNavigation();
+  const { navigate } = useNavigation<any>();
   const [activeCategory, setActiveCategory] = useState("Todos");
+
+  // 1. Estados para armazenar os anúncios do banco e o carregamento
+  const [tools, setTools] = useState<ToolProps[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // 2. Função que vai lá no Supabase buscar os anúncios
+  async function fetchAnuncios() {
+    try {
+      setLoading(true);
+
+      // Busca na tabela 'anuncio' e traz também a URL da imagem relacionada
+      const { data, error } = await supabase
+        .from("anuncio")
+        .select(
+          `
+          id,
+          titulo,
+          preco,
+          cep,
+          anuncio_imagem ( url )
+        `,
+        )
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+
+      if (data) {
+        // Formata os dados para o padrão que o ToolCard espera
+        const formattedTools: ToolProps[] = data.map((item) => {
+          const imageUrl =
+            item.anuncio_imagem?.[0]?.url ||
+            "https://reactnative.dev/img/tiny_logo.png";
+
+          return {
+            id: item.id,
+            title: item.titulo,
+            price: Number(item.preco),
+            location: item.cep,
+            image: imageUrl,
+          };
+        });
+
+        setTools(formattedTools);
+      }
+    } catch (error) {
+      console.error("Erro ao buscar anúncios:", error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // 3. Executa a função assim que o usuário entra na Home
+  useEffect(() => {
+    fetchAnuncios();
+  }, []);
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      <FlatList
-        data={MOCK_TOOLS}
-        keyExtractor={(item) => item.id}
-        numColumns={2}
-        columnWrapperStyle={styles.row}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 100 }}
-        ListHeaderComponent={
-          <>
-            {/* BUSCA */}
-            <View style={styles.searchSection}>
-              <View style={styles.searchInputContainer}>
-                <Feather name="search" size={20} color="#A3A3A3" />
-                <TextInput
-                  style={styles.searchInput}
-                  placeholder="Buscar ferramentas..."
-                  placeholderTextColor="#A3A3A3"
-                />
+      {/* Se estiver carregando, mostra a bolinha girando. Se não, mostra a lista */}
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#F97316" />
+        </View>
+      ) : (
+        <FlatList
+          data={tools} // <-- Aqui passamos a variável de estado 'tools' (que veio do banco)
+          keyExtractor={(item) => item.id}
+          numColumns={2}
+          columnWrapperStyle={styles.row}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 100 }}
+          ListHeaderComponent={
+            <>
+              {/* BUSCA */}
+              <View style={styles.searchSection}>
+                <View style={styles.searchInputContainer}>
+                  <Feather name="search" size={20} color="#A3A3A3" />
+                  <TextInput
+                    style={styles.searchInput}
+                    placeholder="Buscar ferramentas..."
+                    placeholderTextColor="#A3A3A3"
+                  />
+                </View>
               </View>
-            </View>
 
-            {/* TÍTULO DA SEÇÃO */}
-            <View style={styles.sectionTitleRow}>
-              <Text style={styles.sectionTitle}>Perto de você</Text>
+              {/* TÍTULO DA SEÇÃO */}
+              <View style={styles.sectionTitleRow}>
+                <Text style={styles.sectionTitle}>Perto de você</Text>
+              </View>
+            </>
+          }
+          // Caso o banco esteja vazio, mostra essa mensagem:
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>Nenhum anúncio encontrado.</Text>
             </View>
-          </>
-        }
-        renderItem={({ item }) => (
-          <ToolCard
-            item={item}
-            onPress={() => navigate("toolDetails", { id: item.id })}
-          />
-        )}
-      />
+          }
+          renderItem={({ item }) => (
+            <ToolCard
+              item={item}
+              onPress={() => navigate("toolDetails", { id: item.id })}
+            />
+          )}
+        />
+      )}
 
       <BottomNavBar />
     </View>
@@ -89,6 +133,19 @@ export const Home = () => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#F9FAFB" },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  emptyContainer: {
+    padding: 20,
+    alignItems: "center",
+  },
+  emptyText: {
+    color: "#737373",
+    fontSize: 16,
+  },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
