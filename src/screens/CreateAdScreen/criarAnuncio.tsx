@@ -40,7 +40,6 @@ export const CriarAnuncio = () => {
 
   async function handlePublish(data: AnuncioProps) {
     try {
-      /*
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -49,14 +48,7 @@ export const CriarAnuncio = () => {
         Alert.alert("Sessão expirada", "Faça login novamente.");
         return;
       }
-        */
 
-      if (!activeCategory) {
-        Alert.alert("Atenção", "Selecione uma categoria para o anúncio.");
-        return;
-      }
-
-      // 1. Insere o anúncio na tabela principal (anuncio)
       const { data: anuncioInserido, error: anuncioError } = await supabase
         .from("anuncio")
         .insert({
@@ -64,18 +56,17 @@ export const CriarAnuncio = () => {
           descricao: data.descricao,
           preco: parseFloat(data.preco.replace(",", ".")),
           cep: data.cep,
-          categoria_id: activeCategory, // ID retornado pelo componente Category
-          //usuario_id: user.id, // ID do usuário autenticado
+          categoria_id: activeCategory,
+          usuario_id: user.id,
         })
-        .select() // Importante para trazer de volta o ID gerado pelo banco
+        .select()
         .single();
 
       if (anuncioError) throw anuncioError;
 
-      // 2. Insere as fotos na tabela relacional (anuncio_imagem), se houverem
       if (photoUrls.length > 0) {
         const imagensParaInserir = photoUrls.map((url, index) => ({
-          anuncio_id: anuncioInserido.id, // Vincula à chave estrangeira do anúncio criado acima
+          anuncio_id: anuncioInserido.id,
           url: url,
           ordem: index,
         }));
@@ -200,10 +191,6 @@ export const CriarAnuncio = () => {
                 name: "cep",
                 rules: {
                   required: "CEP é obrigatório.",
-                  pattern: {
-                    value: /^\d{5}-\d{3}$/,
-                    message: "CEP inválido",
-                  },
                 },
               }}
               inputProps={{

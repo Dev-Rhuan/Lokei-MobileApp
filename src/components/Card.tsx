@@ -21,18 +21,20 @@ export const ToolCard = ({ item, onPress }: ToolCardProps) => {
       activeOpacity={0.8}
       onPress={onPress}
     >
-      <Image source={{ uri: item.image }} style={styles.cardImage} />
+      <Image
+        source={{ uri: item.image }}
+        style={styles.cardImage}
+        resizeMode="cover"
+      />
 
-      <View>
+      <View style={styles.content}>
         <Text style={styles.toolTitle} numberOfLines={2}>
           {item.title}
         </Text>
-
         <Text style={styles.price}>
           R$ {item.price.toFixed(2).replace(".", ",")}
           <Text style={styles.priceSuffix}>/dia</Text>
         </Text>
-
         <View style={styles.footer}>
           <View style={styles.infoRow}>
             <Feather name="map-pin" size={12} color="#737373" />
@@ -51,21 +53,19 @@ const styles = StyleSheet.create({
     width: "48%",
     backgroundColor: "#fff",
     borderRadius: 20,
-    // padding: 12, <-- REMOVA o padding geral, senão a imagem não encosta nas bordas
     marginBottom: 16,
     elevation: 2,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 8,
-    overflow: "hidden", // <-- ADICIONE isso para a imagem respeitar o borderRadius
+    overflow: "hidden",
   },
   cardImage: {
-    width: "100%", // <-- ADICIONE largura
-    height: 120, // <-- ADICIONE altura
-    backgroundColor: "#E5E5E5", // <-- Cor de fundo enquanto carrega
+    width: "100%",
+    height: 120,
+    backgroundColor: "#E5E5E5",
   },
-  // Como removemos o padding geral do container, precisamos colocar no conteúdo de baixo:
   content: {
     padding: 12,
   },
@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
   },
   priceSuffix: {},
   footer: {
-    marginTop: 8, // <-- Um espacinho em cima do rodapé
+    marginTop: 8,
   },
   infoRow: {
     flexDirection: "row",
@@ -93,6 +93,6 @@ const styles = StyleSheet.create({
   infoText: {
     fontSize: 12,
     color: "#737373",
-    flex: 1, // <-- Para textos longos não quebrarem o layout
+    flex: 1,
   },
 });

@@ -2,21 +2,13 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 
-type Props = {
-  activeRoute: string;
-};
-
-export function BottomNavBar({ activeRoute }: Props) {
+export function BottomNavBar() {
   const navigation = useNavigation<any>();
 
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.button}>
-        <Feather
-          name="home"
-          size={24}
-          color={activeRoute == "home" ? "#F97316" : "#A3A3A3"}
-        />
+        <Feather name="home" size={24} color={"#A3A3A3"} />
         <Text style={styles.text}>Início</Text>
       </TouchableOpacity>
 
@@ -25,17 +17,16 @@ export function BottomNavBar({ activeRoute }: Props) {
           style={styles.anunciar}
           onPress={() => navigation.navigate("criarAnuncio")}
         >
-          <Feather name="plus" size={28} />
+          <Feather name="plus" size={28} color={"#FFFF"} />
         </TouchableOpacity>
         <Text style={styles.text}>Anunciar</Text>
       </View>
 
-      <TouchableOpacity style={styles.button}>
-        <Feather
-          name="user"
-          size={24}
-          color={activeRoute == "home" ? "#F97316" : "#A3A3A3"}
-        />
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => navigation.navigate("minhaConta")}
+      >
+        <Feather name="user" size={24} color={"#A3A3A3"} />
         <Text style={styles.text}>Conta</Text>
       </TouchableOpacity>
     </View>

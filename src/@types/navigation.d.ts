@@ -6,6 +6,8 @@ export declare global {
       toolDetails: { id: string };
       criarAnuncio: undefined;
       home: undefined;
+      login: undefined;
+      minhaConta: { id: string };
     }
   }
 }

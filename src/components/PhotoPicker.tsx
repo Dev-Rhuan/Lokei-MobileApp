@@ -83,13 +83,13 @@ export function PhotoPicker({ onChange }: Props) {
 
       for (const asset of assets) {
         const response = await fetch(asset.uri);
-        const blob = await response.blob();
+        const arrayBuffer = await response.arrayBuffer();
 
         const fileName = `${Date.now()}_${Math.random()}.jpg`;
 
         const { error } = await supabase.storage
           .from("anuncios")
-          .upload(fileName, blob, { contentType: "image/jpeg" });
+          .upload(fileName, arrayBuffer, { contentType: "image/jpeg" });
 
         if (error) throw error;
 
@@ -99,7 +99,6 @@ export function PhotoPicker({ onChange }: Props) {
 
         uploaded.push({ localUri: asset.uri, remoteUrl: data.publicUrl });
       }
-
       const updated = [...photos, ...uploaded];
       setPhotos(updated);
       onChange(updated.map((p) => p.remoteUrl!));
